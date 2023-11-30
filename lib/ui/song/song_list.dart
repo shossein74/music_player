@@ -8,13 +8,25 @@ import 'package:on_audio_query/on_audio_query.dart';
 
 import '../../gen/assets.gen.dart';
 
-class SongList extends StatelessWidget {
-  SongList({
+class SongList extends StatefulWidget {
+  const SongList({
     super.key,
   });
 
-  final PlayerController playerController = Get.find<PlayerController>();
-  final AudioQueryController audioController = Get.find<AudioQueryController>();
+  @override
+  State<SongList> createState() => _SongListState();
+}
+
+class _SongListState extends State<SongList> {
+  late PlayerController playerController;
+  late AudioQueryController audioController;
+
+  @override
+  void initState() {
+    playerController = Get.find<PlayerController>();
+    audioController = Get.find<AudioQueryController>();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +37,9 @@ class SongList extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData) {
-            print('done');
-            audioController.allSongs.value = snapshot.data!;
-            playerController.allSongs.value = snapshot.data!;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              audioController.allSongs.value = snapshot.data!;
+            });
             return Center(
               child: Obx(() {
                 return ListView.builder(
@@ -42,6 +54,11 @@ class SongList extends StatelessWidget {
                       audioController: audioController,
                       songModel: audioController.allSongs[index],
                       onPressed: () {
+                        if (playerController.allSongs !=
+                            audioController.allSongs) {
+                          playerController.allSongs.value =
+                              audioController.allSongs;
+                        }
                         playerController.playSong(
                             playerController.allSongs[index].uri, index);
                         /*Get.to(

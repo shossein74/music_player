@@ -23,8 +23,8 @@ class SongScreen extends StatefulWidget {
 
 class _SongScreenState extends State<SongScreen>
     with SingleTickerProviderStateMixin {
-  var playerController = Get.find<PlayerController>();
-  var audioController = Get.find<AudioQueryController>();
+  late PlayerController playerController;
+  late AudioQueryController audioController;
 
   late PageController pageController;
 
@@ -32,6 +32,8 @@ class _SongScreenState extends State<SongScreen>
 
   @override
   void initState() {
+    playerController = Get.find<PlayerController>();
+    audioController = Get.find<AudioQueryController>();
     pageController = PageController(
       initialPage: playerController.currentIndex.value,
       viewportFraction: 0.94,
@@ -79,8 +81,8 @@ class _SongScreenState extends State<SongScreen>
     final size = MediaQuery.of(context).size;
     isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     return Scaffold(
-      backgroundColor: const Color(0xff0F0817),
-      body: GestureDetector(
+        backgroundColor: const Color(0xff0F0817),
+        body: GestureDetector(
           /*onHorizontalDragEnd: (details) {
             if (details.primaryVelocity != null) {
               if (details.primaryVelocity! > 0) {
@@ -102,6 +104,8 @@ class _SongScreenState extends State<SongScreen>
                         theme.colorScheme.background,
                         theme.colorScheme.onBackground.withOpacity(0.05),
                       ];
+                    } else if (colors.length == 1) {
+                      colors.add(theme.colorScheme.background);
                     }
 
                     return AnimatedOpacity(
@@ -122,7 +126,6 @@ class _SongScreenState extends State<SongScreen>
                   },
                 ),
               ),
-
               if (isLandscape) ...{
                 Positioned.fill(
                   child: SafeArea(
@@ -132,16 +135,17 @@ class _SongScreenState extends State<SongScreen>
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Expanded(child: buildSongImage(size, theme)),
+                          SizedBox(
+                              width: size.height,
+                              height: size.height,
+                              child: buildSongImage(size, theme)),
                           Expanded(
                             child: Column(
                               children: [
                                 buildAppbar(),
-                                buildSongTitle(song, theme),
-                                buildSongSubtitle(song, theme),
-                                //const Expanded(child: SizedBox()),
-                                buildSongControlPanel(
-                                    size, song, context, index),
+                                buildSongTitle(theme),
+                                buildSongSubtitle(theme),
+                                buildSongControlPanel(size, theme),
                               ],
                             ),
                           )
@@ -163,8 +167,8 @@ class _SongScreenState extends State<SongScreen>
                         children: [
                           buildAppbar(),
                           buildSongImage(size, theme),
-                          buildSongTitle(song, theme),
-                          buildSongSubtitle(song, theme),
+                          buildSongTitle(theme),
+                          buildSongSubtitle(theme),
                         ],
                       ),
                     ),
@@ -172,42 +176,140 @@ class _SongScreenState extends State<SongScreen>
                 ),
                 Positioned.fill(
                   bottom: 48,
-                  child: buildSongControlPanel(size, song, context, index),
+                  child: buildSongControlPanel(
+                    size,
+                    theme,
+                  ),
                 ),
               }
             ],
           ),
-        );
-      }),
+        ));
+  }
+
+  Widget buildAppbar() {
+    return Padding(
+      padding: EdgeInsets.only(
+        right: 16.0,
+        left: 16.0,
+        top: isLandscape ? 16.0 : 28.0,
+      ),
+      child: Row(
+        children: [
+          SvgIcon(
+            assetName: Assets.icons.chevronLeft,
+            onPressed: () {
+              Get.back();
+            },
+          ),
+          const Expanded(child: SizedBox()),
+          SvgIcon(
+            assetName: Assets.icons.moreHorizontal,
+            onPressed: () {},
+          ),
+        ],
+      ),
     );
   }
 
-  Widget buildSongControlPanel(
-      Size size, SongModel song, BuildContext context, int index) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            right: 24.0,
-            left: 24.0,
-            top: 24,
+  Widget buildSongTitle(ThemeData theme) {
+    return Obx(() {
+      final SongModel song =
+          audioController.allSongs[playerController.currentIndex.value];
+      return Padding(
+        padding: const EdgeInsets.only(right: 24.0, left: 24.0, top: 24),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                song.displayNameWOExt,
+                style: theme.textTheme.headlineLarge!.copyWith(
+                  fontFamily: FontFamily.urbanistBold,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.onBackground,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.fade,
+              ),
+            ),
+            SvgIcon(
+              assetName: Assets.icons.heart,
+              onPressed: () {},
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget buildSongSubtitle(ThemeData theme) {
+    return Obx((() {
+      final SongModel song =
+          audioController.allSongs[playerController.currentIndex.value];
+      return Padding(
+        padding: const EdgeInsets.only(right: 24.0, left: 24.0),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            song.artist ?? "",
+            style: theme.textTheme.headlineLarge!.copyWith(
+              fontFamily: FontFamily.urbanistMedium,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: DefaultThemeColors.grayLight,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.fade,
           ),
-          child: SizedBox(
-            width: size.width,
-            child: Obx(() {
-              double sliderValue =
-                  playerController.currentDuration.value.toDouble();
-              double maxDuration = song.duration?.toDouble() ?? 0;
-              if (sliderValue > maxDuration) {
-                sliderValue = maxDuration;
-              }
-              if (sliderValue < 0) {
-                sliderValue = 0;
-              }
-              return SliderTheme(
+        ),
+      );
+    }));
+  }
+
+  Widget buildSongControlPanel(
+    Size size,
+    ThemeData theme,
+  ) {
+    return Obx(() {
+      final int index = playerController.currentIndex.value;
+      final SongModel song = audioController.allSongs[index];
+
+      //computing slider values
+      double sliderValue = playerController.currentDuration.value.toDouble();
+      double maxDuration = song.duration?.toDouble() ?? 0;
+      if (sliderValue > maxDuration) {
+        sliderValue = maxDuration;
+      }
+      if (sliderValue < 0) {
+        sliderValue = 0;
+      }
+
+      //bool isDarkMode = theme.brightness == Brightness.dark;
+      Color? foregroundColor;
+      Color? backgroundColor;
+      if (playerController.audioImageInfo.value.imageBytes != null) {
+        AudioImageInfo imageInfo = playerController.audioImageInfo.value;
+
+        if (imageInfo.paletteColors.isNotEmpty) {
+          PaletteColor paletteColor = imageInfo.paletteColors[0];
+          foregroundColor = paletteColor.bodyTextColor;
+          backgroundColor = paletteColor.color;
+        }
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              right: 24.0,
+              left: 24.0,
+              top: 24,
+            ),
+            child: SizedBox(
+              width: size.width,
+              child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   trackShape: CustomTrackShapeSlider(),
                   trackHeight: 1.6,
@@ -229,16 +331,14 @@ class _SongScreenState extends State<SongScreen>
                         .seek(Duration(milliseconds: value.toInt()));
                   },
                 ),
-              );
-            }),
+              ),
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 24.0, left: 24.0),
-          child: Row(
-            children: [
-              Obx(
-                () => Text(
+          Padding(
+            padding: const EdgeInsets.only(right: 24.0, left: 24.0),
+            child: Row(
+              children: [
+                Text(
                   Utils.getTime(playerController.currentDuration.value),
                   style: const TextStyle(
                     fontFamily: FontFamily.urbanist,
@@ -247,35 +347,20 @@ class _SongScreenState extends State<SongScreen>
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-              ),
-              const Expanded(child: SizedBox()),
-              Text(
-                Utils.getTime(song.duration ?? 0),
-                style: const TextStyle(
-                  fontFamily: FontFamily.urbanist,
-                  fontSize: 12,
-                  color: DefaultThemeColors.grayLight,
-                  fontWeight: FontWeight.w400,
+                const Expanded(child: SizedBox()),
+                Text(
+                  Utils.getTime(song.duration ?? 0),
+                  style: const TextStyle(
+                    fontFamily: FontFamily.urbanist,
+                    fontSize: 12,
+                    color: DefaultThemeColors.grayLight,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        Obx(() {
-          bool isDarkMode = theme.brightness == Brightness.dark;
-          Color? foregroundColor;
-          Color? backgroundColor;
-          if (playerController.audioImageInfo.value.imageBytes != null) {
-            AudioImageInfo imageInfo = playerController.audioImageInfo.value;
-
-            if (imageInfo.paletteColors.isNotEmpty) {
-              PaletteColor paletteColor = imageInfo.paletteColors[0];
-              foregroundColor = paletteColor.bodyTextColor;
-              backgroundColor = paletteColor.color;
-            }
-          }
-
-          return Padding(
+          Padding(
             padding: const EdgeInsets.only(right: 24.0, left: 24.0),
             child: Center(
               child: Row(
@@ -362,143 +447,140 @@ class _SongScreenState extends State<SongScreen>
                 ],
               ),
             ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget buildAppbar() {
-    return Padding(
-      padding: EdgeInsets.only(
-        right: 16.0,
-        left: 16.0,
-        top: isLandscape ? 16.0 : 28.0,
-      ),
-      child: Row(
-        children: [
-          SvgIcon(
-            assetName: Assets.icons.chevronLeft,
-            onPressed: () {
-              Get.back();
-            },
-          ),
-          const Expanded(child: SizedBox()),
-          SvgIcon(
-            assetName: Assets.icons.moreHorizontal,
-            onPressed: () {},
           ),
         ],
-      ),
-    );
-  }
-
-  Widget buildSongSubtitle(SongModel song, ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 24.0, left: 24.0),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          song.artist ?? "",
-          style: theme.textTheme.headlineLarge!.copyWith(
-            fontFamily: FontFamily.urbanistMedium,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: DefaultThemeColors.grayLight,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.fade,
-        ),
-      ),
-    );
-  }
-
-  Widget buildSongTitle(SongModel song, ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 24.0, left: 24.0, top: 24),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              song.displayNameWOExt,
-              style: theme.textTheme.headlineLarge!.copyWith(
-                fontFamily: FontFamily.urbanistBold,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: theme.colorScheme.onBackground,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-            ),
-          ),
-          SvgIcon(
-            assetName: Assets.icons.heart,
-            onPressed: () {},
-          ),
-        ],
-      ),
-    );
+      );
+    });
   }
 
   Widget buildSongImage(Size size, ThemeData theme) {
-    return Padding(
-      padding: EdgeInsets.only(top: (isLandscape ? 16 : 28)),
-      child: Center(
-        child: SizedBox(
-          width: size.width,
-          height: size.width - 48,
-          child: PageView.builder(
-              controller: pageController,
-              itemCount: playerController.allSongs.length,
-              scrollDirection: Axis.horizontal,
-              onPageChanged: (value) {
-                if (value > playerController.currentIndex.value) {
-                  playNextSong(playerController.currentIndex.value);
-                } else if (value < playerController.currentIndex.value) {
-                  playPreviousSong(playerController.currentIndex.value,
-                      checkDuration: false);
-                }
-              },
-              physics: const BouncingScrollPhysics(),
-              itemBuilder: (context, position) {
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    right: 8,
-                    left: 8,
-                  ),
-                  child: QueryArtworkWidget(
-                    controller: audioController.audioQuery,
-                    size: (size.width).toInt(),
-                    id: playerController.allSongs[position].id,
-                    artworkFit: BoxFit.fill,
-                    type: ArtworkType.AUDIO,
-                    keepOldArtwork: true,
-                    artworkBorder: BorderRadius.circular(16.0),
-                    artworkQuality: FilterQuality.high,
-                    //artworkClipBehavior: Clip.antiAliasWithSaveLayer,
-                    quality: 100,
-                    nullArtworkWidget: Container(
-                      decoration: BoxDecoration(
-                        color: theme.brightness == Brightness.dark
-                            ? Colors.white.withOpacity(0.1)
-                            : Colors.black.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Center(
-                        child: SvgIcon(
-                          assetName: Assets.icons.song,
-                          iconSize: 68,
-                          iconColor: theme.brightness == Brightness.dark
-                              ? Colors.white
-                              : DarkThemeColors.background,
+    return Obx(() {
+      print("BuildSongImage------------------------------------------------");
+      print("PageController: ${pageController.initialPage}");
+      print("CurrentIndex: ${playerController.currentIndex.value}");
+      print("--------------------------------------------------------------");
+      if (pageController.initialPage != playerController.currentIndex.value) {
+        pageController = PageController(
+          initialPage: playerController.currentIndex.value.toInt(),
+          viewportFraction: 0.94,
+          keepPage: false,
+        );
+      }
+      return Padding(
+        padding: EdgeInsets.only(top: (isLandscape ? 16 : 28)),
+        child: Center(
+          child: SizedBox(
+            width: size.width,
+            height: size.width - 48,
+            child: PageView.builder(
+                controller: pageController,
+                itemCount: audioController.allSongs.length,
+                scrollDirection: Axis.horizontal,
+                onPageChanged: (value) {
+                  if (value > playerController.currentIndex.value) {
+                    playNextSong(playerController.currentIndex.value);
+                  } else if (value < playerController.currentIndex.value) {
+                    playPreviousSong(playerController.currentIndex.value,
+                        checkDuration: false);
+                  }
+                },
+                physics: const BouncingScrollPhysics(),
+                itemBuilder: (context, position) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      right: 8,
+                      left: 8,
+                    ),
+                    child: QueryArtworkWidget(
+                      controller: audioController.audioQuery,
+                      size: (size.width).toInt(),
+                      id: playerController.allSongs[position].id,
+                      artworkFit: BoxFit.fill,
+                      type: ArtworkType.AUDIO,
+                      keepOldArtwork: true,
+                      artworkBorder: BorderRadius.circular(16.0),
+                      artworkQuality: FilterQuality.high,
+                      //artworkClipBehavior: Clip.antiAliasWithSaveLayer,
+                      quality: 100,
+                      nullArtworkWidget: Container(
+                        decoration: BoxDecoration(
+                          color: theme.brightness == Brightness.dark
+                              ? Colors.white.withOpacity(0.1)
+                              : Colors.black.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        child: Center(
+                          child: SvgIcon(
+                            assetName: Assets.icons.song,
+                            iconSize: 68,
+                            iconColor: theme.brightness == Brightness.dark
+                                ? Colors.white
+                                : DarkThemeColors.background,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+          ),
         ),
-      ),
-    );
+      );
+    });
+  }
+
+  Widget buildSongImageLandscape(Size size, ThemeData theme) {
+    return Obx(() {
+      print("BuildSongImage------------------------------------------------");
+      print(
+          "ImageIndex: ${playerController.currentImageIndex.value.toString()}");
+      print("CurrentIndex: ${playerController.currentIndex.value}");
+      print("--------------------------------------------------------------");
+
+      return Padding(
+        padding: EdgeInsets.only(top: (isLandscape ? 16 : 28)),
+        child: Center(
+          child: SizedBox(
+            width: size.width,
+            height: size.width - 48,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                right: 8,
+                left: 8,
+              ),
+              child: QueryArtworkWidget(
+                controller: audioController.audioQuery,
+                size: (size.width).toInt(),
+                id: playerController
+                    .allSongs[playerController.currentIndex.value].id,
+                artworkFit: BoxFit.fill,
+                type: ArtworkType.AUDIO,
+                keepOldArtwork: true,
+                artworkBorder: BorderRadius.circular(16.0),
+                artworkQuality: FilterQuality.high,
+                //artworkClipBehavior: Clip.antiAliasWithSaveLayer,
+                quality: 100,
+                nullArtworkWidget: Container(
+                  decoration: BoxDecoration(
+                    color: theme.brightness == Brightness.dark
+                        ? Colors.white.withOpacity(0.1)
+                        : Colors.black.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  child: Center(
+                    child: SvgIcon(
+                      assetName: Assets.icons.song,
+                      iconSize: 68,
+                      iconColor: theme.brightness == Brightness.dark
+                          ? Colors.white
+                          : DarkThemeColors.background,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    });
   }
 }
