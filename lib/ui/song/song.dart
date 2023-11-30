@@ -1,9 +1,4 @@
-import 'dart:math' as math;
-import 'dart:ui';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_player/controller/audio_query_controller.dart';
@@ -18,12 +13,8 @@ import 'package:palette_generator/palette_generator.dart';
 import '../../controller/player_controller.dart';
 
 class SongScreen extends StatefulWidget {
-  /*final SongModel song;
-  final int index;*/
-
   const SongScreen({
     super.key,
-    /*required this.song, required this.index*/
   });
 
   @override
@@ -35,34 +26,16 @@ class _SongScreenState extends State<SongScreen>
   var playerController = Get.find<PlayerController>();
   var audioController = Get.find<AudioQueryController>();
 
-  late AnimationController _animationController;
   late PageController pageController;
 
   late bool isLandscape;
 
   @override
   void initState() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-
     pageController = PageController(
       initialPage: playerController.currentIndex.value,
       viewportFraction: 0.94,
     );
-    pageController.addListener(() {
-      playerController.currentImageIndex.value = pageController.page ?? 0;
-    });
-    print("Init State Index: ${playerController.currentIndex.value}");
-
-    /*controller.audioPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.loading) {
-        _animationController.forward();
-      } else {
-        _animationController.reverse();
-      }
-    });*/
 
     super.initState();
   }
@@ -107,10 +80,7 @@ class _SongScreenState extends State<SongScreen>
     isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     return Scaffold(
       backgroundColor: const Color(0xff0F0817),
-      body: Obx(() {
-        final index = playerController.currentIndex.value;
-        final SongModel song = playerController.allSongs[index];
-        return GestureDetector(
+      body: GestureDetector(
           /*onHorizontalDragEnd: (details) {
             if (details.primaryVelocity != null) {
               if (details.primaryVelocity! > 0) {
@@ -134,9 +104,6 @@ class _SongScreenState extends State<SongScreen>
                       ];
                     }
 
-                    print(playerController
-                        .audioImageInfo.value.paletteColors.length);
-
                     return AnimatedOpacity(
                       opacity: playerController.fadeAnimation.value,
                       duration: const Duration(milliseconds: 500),
@@ -155,15 +122,7 @@ class _SongScreenState extends State<SongScreen>
                   },
                 ),
               ),
-              /*Positioned.fill(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(
-                    sigmaX: 0.5,
-                    sigmaY: 0.5,
-                    tileMode: TileMode.clamp,
-                  ),
-                ),
-              ),*/
+
               if (isLandscape) ...{
                 Positioned.fill(
                   child: SafeArea(
@@ -195,7 +154,6 @@ class _SongScreenState extends State<SongScreen>
                 Positioned.fill(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.only(bottom: 128),
-                    dragStartBehavior: DragStartBehavior.down,
                     physics: const BouncingScrollPhysics(),
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(0, 24, 0, 54),

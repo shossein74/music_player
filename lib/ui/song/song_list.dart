@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:music_player/controller/audio_query_controller.dart';
 import 'package:music_player/controller/player_controller.dart';
-import 'package:music_player/ui/song/song.dart';
 import 'package:music_player/utils/functions.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -12,14 +11,10 @@ import '../../gen/assets.gen.dart';
 class SongList extends StatelessWidget {
   SongList({
     super.key,
-    //required this.playerController,
-    //required this.audioController,
-    //required this.scrollController,
   });
 
   final PlayerController playerController = Get.find<PlayerController>();
   final AudioQueryController audioController = Get.find<AudioQueryController>();
-  //final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +30,7 @@ class SongList extends StatelessWidget {
             playerController.allSongs.value = snapshot.data!;
             return Center(
               child: Obx(() {
-                //playerController.allSongs.value = audioController.allSongs;
                 return ListView.builder(
-                  //controller: audioController.songsScrollController,
                   physics: const BouncingScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
@@ -81,7 +74,6 @@ class SongList extends StatelessWidget {
             ),
           );
         }
-        print("loading...");
         return const Center(
           child: CircularProgressIndicator(),
         );

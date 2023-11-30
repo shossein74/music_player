@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:music_player/gen/assets.gen.dart';
 import 'package:music_player/gen/fonts.gen.dart';
-import 'dart:math' as math;
 
-import 'package:music_player/ui/home/home.dart';
 
 class PlaylistScreen extends StatelessWidget {
   const PlaylistScreen({super.key});

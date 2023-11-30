@@ -1,25 +1,18 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_player/controller/audio_query_controller.dart';
 import 'package:music_player/controller/player_controller.dart';
 import 'package:music_player/controller/tab_controller.dart';
-import 'package:music_player/gen/assets.gen.dart';
 import 'package:music_player/gen/fonts.gen.dart';
 import 'package:music_player/ui/album/album_list.dart';
 import 'package:music_player/ui/artist/artist_list.dart';
 import 'package:music_player/ui/folder/folder_list.dart';
 import 'package:music_player/ui/home/tab_layout.dart';
 import 'package:music_player/utils/common_widgets.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 
-import '../../app_colors.dart';
-import '../song/song.dart';
 import '../song/song_list.dart';
 import 'float_player.dart';
 
@@ -207,37 +200,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget buildFoldersView() {
     return KeepPageAlive(
-      child: FolderList(
-          //playerController: _playerController,
-          //scrollController: _scrollController,
-          ),
+      child: FolderList(),
     );
   }
 
   Widget buildAlbumsView() {
     return KeepPageAlive(
-        child: AlbumList(
-            //playerController: _playerController,
-            //scrollController: _scrollController,
-            ));
+        child: AlbumList());
   }
 
   Widget buildArtistView() {
     return KeepPageAlive(
-      child: ArtistList(
-          //playerController: _playerController,
-          //scrollController: _scrollController,
-          ),
+      child: ArtistList(),
     );
   }
 
   Widget buildSongView() {
     return KeepPageAlive(
-      child: SongList(
-          //playerController: _playerController,
-          //audioController: _audioController,
-          //scrollController: _scrollController,
-          ),
+      child: SongList(),
     );
   }
 }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:music_player/controller/player_controller.dart';
-import 'package:music_player/ui/artist/artist_list.dart';
 
 class ArtistScreen extends StatefulWidget {
   const ArtistScreen(

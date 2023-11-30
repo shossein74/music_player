@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:music_player/controller/player_controller.dart';
 import 'package:music_player/ui/playlist/playlist.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 
 import '../../controller/audio_query_controller.dart';
 import '../../gen/assets.gen.dart';

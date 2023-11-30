@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:music_player/ui/home/home.dart';
-import 'package:music_player/ui/song/song.dart';
 
 class AppPages {
   AppPages._();
