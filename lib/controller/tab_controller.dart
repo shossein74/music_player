@@ -3,26 +3,27 @@ import 'package:get/get.dart';
 
 class TabGetXController extends GetxController
     with GetTickerProviderStateMixin {
-  late TabController tabController;
-  final RxInt _tabIndex = 0.obs;
+  final RxInt tabIndex = 3.obs;
+
+  late PageController pageController;
+  late PageController pageViewController;
 
   @override
   void onInit() {
-    tabController = TabController(length: 4, vsync: this);
+    pageController = PageController(initialPage: tabIndex.value, viewportFraction: 0.26);
+    pageViewController = PageController(initialPage: tabIndex.value);
     super.onInit();
   }
 
   @override
   void onClose() {
-    tabController.dispose();
+    pageController.dispose();
+    pageViewController.dispose();
     super.onClose();
   }
 
   void setTabIndex(int newTabIndex) {
-    _tabIndex.value = newTabIndex < 0 ? 0 : newTabIndex;
+    tabIndex.value = newTabIndex < 0 ? 0 : newTabIndex;
   }
 
-  int getTabIndex() {
-    return _tabIndex.value;
-  }
 }

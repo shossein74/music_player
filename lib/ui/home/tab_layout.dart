@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:music_player/app_colors.dart';
 import 'package:music_player/controller/tab_controller.dart';
 import 'package:music_player/gen/fonts.gen.dart';
 
@@ -13,26 +14,18 @@ class MTabBar extends StatefulWidget {
 }
 
 class _MTabBarState extends State<MTabBar> with TickerProviderStateMixin {
-  late TabGetXController tabGetXController;
+  late TabGetXController getXTabController;
 
   @override
   void initState() {
-    tabGetXController = Get.find<TabGetXController>();
-
-    tabGetXController.tabController.animation?.addListener(() {
-      if (tabGetXController.getTabIndex() !=
-          tabGetXController.tabController.animation!.value.round()) {
-        tabGetXController.setTabIndex(
-            tabGetXController.tabController.animation!.value.round());
-      }
-    });
-
+    getXTabController = Get.find<TabGetXController>();
+    
     super.initState();
   }
 
   @override
   void dispose() {
-    tabGetXController.dispose();
+    getXTabController.dispose();
     super.dispose();
   }
 
@@ -43,8 +36,8 @@ class _MTabBarState extends State<MTabBar> with TickerProviderStateMixin {
     return Obx(
       () => Column(
         children: [
-          TabBar(
-            controller: tabGetXController.tabController,
+          /*TabBar(
+            controller: getXTabController.tabController,
             labelStyle: theme.textTheme.bodySmall,
             unselectedLabelColor: theme.colorScheme.onSurface,
             indicatorSize: TabBarIndicatorSize.label,
@@ -63,28 +56,144 @@ class _MTabBarState extends State<MTabBar> with TickerProviderStateMixin {
             splashBorderRadius: BorderRadius.circular(12),
             splashFactory: NoSplash.splashFactory,
             tabs: [
-              TabItem(
-                title: "Songs",
-                theme: theme,
-                isSelected: tabGetXController.getTabIndex() == 0,
+              Transform.scale(
+                scale: getXTabController.getTabIndex() == 0 ? 1.4 : 1.0,
+                child: TabItem(
+                  title: "Songs",
+                  theme: theme,
+                  isSelected: getXTabController.getTabIndex() == 0,
+                ),
               ),
-              TabItem(
-                title: "Artists",
-                theme: theme,
-                isSelected: tabGetXController.getTabIndex() == 1,
+              Transform.scale(
+                scale: getXTabController.getTabIndex() == 1 ? 1.4 : 1.0,
+                child: TabItem(
+                  title: "Artists",
+                  theme: theme,
+                  isSelected: getXTabController.getTabIndex() == 1,
+                ),
               ),
-              TabItem(
-                title: "Albums",
-                theme: theme,
-                isSelected: tabGetXController.getTabIndex() == 2,
+              Transform.scale(
+                scale: getXTabController.getTabIndex() == 2 ? 1.4 : 1.0,
+                child: TabItem(
+                  title: "Albums",
+                  theme: theme,
+                  isSelected: getXTabController.getTabIndex() == 2,
+                ),
               ),
-              TabItem(
-                title: "Folders",
-                theme: theme,
-                isSelected: tabGetXController.getTabIndex() == 3,
+              Transform.scale(
+                scale: getXTabController.getTabIndex() == 3 ? 1.4 : 1.0,
+                child: TabItem(
+                  title: "Folders",
+                  theme: theme,
+                  isSelected: getXTabController.getTabIndex() == 3,
+                ),
               ),
             ],
-          ),
+          ),*/
+          SizedBox(
+            height: 68,
+            child: PageView(
+                controller: getXTabController.pageController,
+                onPageChanged: (index) {
+                  print("PageControllerIndex: $index}");
+                  getXTabController.tabIndex.value = index;
+                  getXTabController.pageViewController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.decelerate);
+                },
+                children: [
+                  Transform.scale(
+                    scale: getXTabController.tabIndex.value == 0 ? 1.4 : 1.0,
+                    child: TabItem(
+                      title: "Songs",
+                      theme: theme,
+                      isSelected: getXTabController.tabIndex.value == 0,
+                      onPressed: () {
+                        if (getXTabController.tabIndex.value != 0) {
+                          getXTabController.pageViewController.animateToPage(
+                              0, duration: const Duration(
+                              milliseconds: 300), curve: Curves.decelerate);
+                        }
+                      },
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: getXTabController.tabIndex.value == 1 ? 1.4 : 1.0,
+                    child: TabItem(
+                      title: "Artists",
+                      theme: theme,
+                      isSelected: getXTabController.tabIndex.value == 1,
+                      onPressed: () {
+                        if (getXTabController.tabIndex.value != 1) {
+                          getXTabController.pageViewController.animateToPage(
+                              1, duration: const Duration(
+                              milliseconds: 300), curve: Curves.decelerate);
+                        }
+                      },
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: getXTabController.tabIndex.value == 2 ? 1.4 : 1.0,
+                    child: TabItem(
+                      title: "Albums",
+                      theme: theme,
+                      isSelected: getXTabController.tabIndex.value == 2,
+                      onPressed: () {
+                        if (getXTabController.tabIndex.value != 2) {
+                          getXTabController.pageViewController.animateToPage(
+                              2, duration: const Duration(
+                              milliseconds: 300), curve: Curves.decelerate);
+                        }
+                      },
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: getXTabController.tabIndex.value == 3 ? 1.4 : 1.0,
+                    child: TabItem(
+                      title: "Playlists",
+                      theme: theme,
+                      isSelected: getXTabController.tabIndex.value == 3,
+                      onPressed: () {
+                        if (getXTabController.tabIndex.value != 3) {
+                          getXTabController.pageViewController.animateToPage(
+                              3, duration: const Duration(
+                              milliseconds: 300), curve: Curves.decelerate);
+                        }
+                      },
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: getXTabController.tabIndex.value == 4 ? 1.4 : 1.0,
+                    child: TabItem(
+                      title: "Liked songs",
+                      theme: theme,
+                      isSelected: getXTabController.tabIndex.value == 4,
+                      onPressed: () {
+                        if (getXTabController.tabIndex.value != 4) {
+                          getXTabController.pageViewController.animateToPage(
+                              4, duration: const Duration(
+                              milliseconds: 300), curve: Curves.decelerate);
+                        }
+                      },
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: getXTabController.tabIndex.value == 5 ? 1.4 : 1.0,
+                    child: TabItem(
+                      title: "Folders",
+                      theme: theme,
+                      isSelected: getXTabController.tabIndex.value == 5,
+                      onPressed: () {
+                        if (getXTabController.tabIndex.value != 5) {
+                          getXTabController.pageViewController.animateToPage(
+                              5, duration: const Duration(
+                              milliseconds: 300), curve: Curves.decelerate);
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
         ],
       ),
     );
@@ -116,7 +225,7 @@ class TabItem extends StatelessWidget {
     fontWeight: FontWeight.w500,
     fontFamily: FontFamily.urbanistMedium,
     fontSize: 13,
-    color: Colors.white,
+    color: DarkThemeColors.grayLight,
   );
 
   @override
@@ -136,8 +245,7 @@ class TabItem extends StatelessWidget {
             title,
             style: isSelected
                 ? selectedTextStyle.apply(color: theme.colorScheme.onBackground)
-                : unSelectedTextStyle.apply(
-                    color: theme.colorScheme.onBackground),
+                : unSelectedTextStyle,
           ),
         ),
       ),

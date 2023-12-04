@@ -25,6 +25,7 @@ class SvgIcon extends StatelessWidget {
     this.borderRadius,
     this.paddingSize,
     this.iconColor,
+    this.splashColor,
   });
 
   final String assetName;
@@ -33,21 +34,27 @@ class SvgIcon extends StatelessWidget {
   final double? borderRadius;
   final double? paddingSize;
   final Color? iconColor;
+  final Color? splashColor;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(borderRadius ?? 16),
-      child: Padding(
-        padding: EdgeInsets.all(paddingSize ?? 8.0),
-        child: SvgPicture.asset(
-          assetName,
-          width: iconSize ?? 24,
-          height: iconSize ?? 24,
-          colorFilter: iconColor != null
-              ? ColorFilter.mode(iconColor!, BlendMode.srcIn)
-              : null,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        splashColor: splashColor,
+        splashFactory: InkRipple.splashFactory,
+        borderRadius: BorderRadius.circular(borderRadius ?? 16),
+        child: Padding(
+          padding: EdgeInsets.all(paddingSize ?? 8.0),
+          child: SvgPicture.asset(
+            assetName,
+            width: iconSize ?? 24,
+            height: iconSize ?? 24,
+            colorFilter: iconColor != null
+                ? ColorFilter.mode(iconColor!, BlendMode.srcIn)
+                : null,
+          ),
         ),
       ),
     );

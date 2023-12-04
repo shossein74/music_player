@@ -11,7 +11,7 @@ class PlayerController extends GetxController with GetTickerProviderStateMixin {
   PlayerController({this.onPlayNextSong});
 
   final Function()? onPlayNextSong;
-  //final audioQuery = OnAudioQuery();
+
   final audioPlayer = AudioPlayer();
 
   late AnimationController gradientAnimController;
@@ -22,16 +22,6 @@ class PlayerController extends GetxController with GetTickerProviderStateMixin {
   late Animation<double> scaleAnimation;
 
   RxList<SongModel> allSongs = <SongModel>[].obs;
-  //RxList<SongModel> songs = <SongModel>[].obs;
-
-  /*RxList<ArtistModel> allArtists = <ArtistModel>[].obs;
-  RxList<ArtistModel> artists = <ArtistModel>[].obs;
-
-  RxList<AlbumModel> allAlbums = <AlbumModel>[].obs;
-  RxList<AlbumModel> albums = <AlbumModel>[].obs;
-
-  RxList<String> allFolders = <String>[].obs;
-  RxList<String> folders = <String>[].obs;*/
 
   RxBool isLoading = false.obs;
   RxBool isPlaying = false.obs;
@@ -40,19 +30,16 @@ class PlayerController extends GetxController with GetTickerProviderStateMixin {
   RxInt currentDuration = 0.obs;
   RxDouble currentImageIndex = 0.0.obs;
 
-  var currentState = ProcessingState.idle.obs;
-
   Rx<AudioImageInfo> audioImageInfo = AudioImageInfo(null, [], []).obs;
+
+  var currentState = ProcessingState.idle.obs;
 
   @override
   void onInit() {
     super.onInit();
 
-    /*pageController.addListener(() {
-      currentImageIndex.value = pageController.page ?? 0.0;
-    });*/
-
     checkPermission();
+
     gradientAnimController =
         AnimationController(vsync: this, duration: const Duration(seconds: 20));
 
@@ -60,6 +47,7 @@ class PlayerController extends GetxController with GetTickerProviderStateMixin {
         AnimationController(vsync: this, duration: const Duration(seconds: 5));
 
     gradientAnimController.repeat();
+
     beginAlignment = TweenSequence<Alignment>([
       TweenSequenceItem(
         tween:
@@ -119,9 +107,13 @@ class PlayerController extends GetxController with GetTickerProviderStateMixin {
   }
 
   @override
-  void onClose() {}
+  void onClose() {
+    audioPlayer.dispose();
+    gradientAnimController.dispose();
+    gradientFadeController.dispose();
+  }
 
-  checkPermission() async {
+  Future<void> checkPermission() async {
     var perm = await Permission.storage.request();
     if (perm.isGranted) {
     } else {
@@ -133,49 +125,11 @@ class PlayerController extends GetxController with GetTickerProviderStateMixin {
     return allSongs[currentIndex.value];
   }
 
-  /*/// User this function for retrieve song list on initializing
-  Future<List<SongModel>> getSongList() async => audioQuery.querySongs(
-        ignoreCase: true,
-        uriType: UriType.EXTERNAL,
-        orderType: OrderType.DESC_OR_GREATER,
-        sortType: SongSortType.DATE_ADDED,
-      );
-
-  /// User this function for retrieve album list on initializing
-  Future<List<AlbumModel>> getAlbumList() async => audioQuery.queryAlbums(
-        ignoreCase: true,
-        uriType: UriType.EXTERNAL,
-        orderType: OrderType.DESC_OR_GREATER,
-        sortType: AlbumSortType.ALBUM,
-      );
-
-  /// User this function for retrieve album list on initializing
-  Future<List<ArtistModel>> getArtistList() async => audioQuery.queryArtists(
-        ignoreCase: true,
-        uriType: UriType.EXTERNAL,
-        orderType: OrderType.DESC_OR_GREATER,
-        sortType: ArtistSortType.NUM_OF_TRACKS,
-      );
-
-  /// User this function for retrieve folder list on initializing
-  Future<List<String>> getFolderList() async => audioQuery.queryAllPath();
-
-  /// Use this function for retrieve more songs (Paging)
-  Future<void> fetchSongs() async {
-    isLoading(true);
-    songs.addAll(songs.length + 80 <= allSongs.length
-        ? allSongs.sublist(songs.length, songs.length + 80)
-        : allSongs.sublist(
-            songs.length,
-          ));
-    isLoading(false);
-  }*/
-
   /// This function with these two parameter try to playing song
   /// * @param [uri]: get uri from song model
   /// * @param index: index of song in loaded list with paging [songs]
   /// * IMPORTANT uri is nullable but if uri equal null so song definitely won't play
-  void playSong(String? uri, int index) async {
+  Future<void> playSong(String? uri, int index) async {
     try {
       currentIndex.value = index;
       audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri ?? "")));
@@ -196,7 +150,7 @@ class PlayerController extends GetxController with GetTickerProviderStateMixin {
         }
       });
       audioPlayer.positionStream.listen((event) {
-        int durationMillis = event.inMilliseconds ?? 0;
+        int durationMillis = event.inMilliseconds;
 
         if (durationMillis >= 0 &&
             durationMillis <= (allSongs[index].duration ?? 0)) {
@@ -210,23 +164,12 @@ class PlayerController extends GetxController with GetTickerProviderStateMixin {
       audioImageInfo.value = imageInfo ?? AudioImageInfo(null, [], []);
       gradientFadeController.forward();
       gradientAnimController.repeat();
-      //print(audioImageInfo.value);
     } on PlayerException catch (e) {
-      // iOS/macOS: maps to NSError.code
-      // Android: maps to ExoPlayerException.type
-      // Web: maps to MediaError.code
       print("Error code: ${e.code}");
-      // iOS/macOS: maps to NSError.localizedDescription
-      // Android: maps to ExoPlaybackException.getMessage()
-      // Web: a generic message
       print("Error message: ${e.message}");
     } on PlayerInterruptedException catch (e) {
-      // This call was interrupted since another audio source was loaded or the
-      // player was stopped or disposed before this audio source could complete
-      // loading.
       print("Connection aborted: ${e.message}");
     } catch (e) {
-      // Fallback for all errors
       print(e);
     }
   }

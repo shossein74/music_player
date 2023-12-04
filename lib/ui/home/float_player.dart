@@ -12,13 +12,26 @@ import '../../utils/common_widgets.dart';
 import '../../utils/functions.dart';
 import '../song/song.dart';
 
-class FloatingPlayer extends StatelessWidget {
-  FloatingPlayer({
+class FloatingPlayer extends StatefulWidget {
+  const FloatingPlayer({
     super.key,
   });
 
-  final PlayerController playerController = Get.find<PlayerController>();
-  final AudioQueryController audioController = Get.find<AudioQueryController>();
+  @override
+  State<FloatingPlayer> createState() => _FloatingPlayerState();
+}
+
+class _FloatingPlayerState extends State<FloatingPlayer> {
+
+  late PlayerController playerController;
+  late AudioQueryController audioController;
+
+  @override
+  void initState() {
+    playerController = Get.find<PlayerController>();
+    audioController = Get.find<AudioQueryController>();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
